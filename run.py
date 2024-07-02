@@ -3,8 +3,6 @@ from flask import Flask
 import sys
 import os
 from dotenv import load_dotenv
-import logging
-import logging
 import json
 
 from flask import Blueprint, request, jsonify, current_app
@@ -97,7 +95,7 @@ def webhook_get():
     return verify()
 
 @app.route("/webhook", methods=["POST"])
-#signature_required
+@signature_required
 def webhook_post():
     return handle_message()
 
