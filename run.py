@@ -61,40 +61,27 @@ def handle_message():
         return jsonify({"status": "error", "message": "Invalid JSON provided"}), 400
 
 
-# Required webhook verifictaion for WhatsApp
-def verify():
-    # Parse params from the webhook verification request
-    mode = request.args.get("hub.mode")
-    token = request.args.get("hub.verify_token")
-    challenge = request.args.get("hub.challenge")
-    logging.info(f"Received verification request: mode={mode}, token={token},challenge = {challenge}")
-
-    # Check if a token and mode were sent
-    if mode and token:
-        # Check the mode and token sent are correct
-        if mode == "subscribe" and token == current_app.config["VERIFY_TOKEN"]:
-            logging.info("WEBHOOK_VERIFIED")
-            # Respond with 200 OK and challenge token from the request
-            logging.info("WEBHOOK_VERIFIED")
-            return challenge,200
-        else:
-            # Responds with '403 Forbidden' if verify tokens do not match
-            logging.info("VERIFICATION_FAILED")
-            return jsonify({"status": "error", "message": "Verification failed"}), 403
-    else:
-        # Responds with '400 Bad Request' if verify tokens do not match
-        logging.info("MISSING_PARAMETER")
-        return jsonify({"status": "error", "message": "Missing parameters"}), 400
-
 @app.route("/")
 def jg():
     return f"hello world"
 
-@app.route("/webhook", methods=["GET"])
+@app.route("/webhooks", methods=["GET"])
 def webhook_get():
-    return verify()
+    mode = request.args.get("hub.mode")
+    token = request.args.get("hub.verify_token")
+    challenge = request.args.get("hub.challenge")
+    logging.info(f"Received verification request: mode={mode}, token={token},challenge = {challenge}")
+    if token == 'nishant' and mode == "subscribe":
+        logging.info("WEBHOOK_VERIFIED")
+            # Respond with 200 OK and challenge token from the request
+        logging.info("WEBHOOK_VERIFIED")
+        return challenge,200
+    else:
+            # Responds with '403 Forbidden' if verify tokens do not match
+        logging.info("VERIFICATION_FAILED")
+        return jsonify({"status": "error", "message": "Verification failed"}), 403
 
-@app.route("/webhook", methods=["POST"])
+@app.route("/webhooks", methods=["POST"])
 @signature_required
 def webhook_post():
     return handle_message()
